@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Montserrat", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Identidad CUTlaquepaque: verde institucional */
+  --color-verde-50: #eef7f0;
+  --color-verde-100: #d5ebda;
+  --color-verde-200: #acd6b7;
+  --color-verde-300: #7bbb8e;
+  --color-verde-400: #4c9c66;
+  --color-verde-500: #2c8049;
+  --color-verde-600: #1e6b3a;
+  --color-verde-700: #185630;
+  --color-verde-800: #144527;
+  --color-verde-900: #113920;
+  --color-verde-950: #082113;
+
+  /* Oliva / lima del logotipo ("CU") */
+  --color-oliva-300: #b5dc7f;
+  --color-oliva-400: #8cc63f;
+  --color-oliva-500: #6fa32e;
+  --color-oliva-600: #5a8526;
+  --color-oliva-700: #466a1e;
+
+  /* Terracota ("TLAQUE") */
+  --color-terracota-50: #fdf3ec;
+  --color-terracota-100: #fae2d1;
+  --color-terracota-200: #f3c1a0;
+  --color-terracota-300: #e99a6b;
+  --color-terracota-400: #de7d45;
+  --color-terracota-500: #c9692f;
+  --color-terracota-600: #ad5527;
+  --color-terracota-700: #8c4423;
+  --color-terracota-800: #713822;
+
+  /* Café (leyenda institucional) */
+  --color-cafe-50: #f8f3ee;
+  --color-cafe-100: #ece0d4;
+  --color-cafe-300: #bb9878;
+  --color-cafe-500: #7f5a3d;
+  --color-cafe-600: #684730;
+  --color-cafe-700: #553a28;
+  --color-cafe-800: #432e21;
+  --color-cafe-900: #36261c;
+
+  --color-page: #f4f3ef;
+
+  --animate-loader: loader 1.1s ease-in-out infinite;
+  @keyframes loader {
+    0% { transform: translateX(-110%); }
+    100% { transform: translateX(310%); }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply min-h-dvh bg-page font-sans text-stone-800 antialiased;
+  }
+  ::selection {
+    background: rgb(30 107 58 / 0.18);
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-stone-200 bg-white shadow-[0_1px_2px_rgba(28,25,23,0.05)];
+  }
+  .input {
+    @apply h-10 w-full rounded-lg border border-stone-300 bg-white px-3 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-verde-600 focus:ring-4 focus:ring-verde-600/15 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-stone-500;
+  }
+  textarea.input {
+    @apply h-auto py-2;
+  }
+  .label {
+    @apply mb-1.5 block text-[13px] font-medium text-stone-700;
+  }
+  .eyebrow {
+    @apply font-display text-[11px] font-bold tracking-[0.18em] uppercase;
+  }
+  /* Degradado inspirado en la identidad: lima → verde → café */
+  .brand-hero {
+    background:
+      radial-gradient(circle at 12% 8%, rgb(255 255 255 / 0.5), transparent 32%),
+      linear-gradient(135deg, #7db543 0%, #2d8a48 30%, #17643a 58%, #0f4a2a 78%, #4a3522 100%);
+  }
+  .brand-hero-admin {
+    background:
+      radial-gradient(circle at 85% 0%, rgb(201 105 47 / 0.35), transparent 38%),
+      linear-gradient(140deg, #0c3a22 0%, #134a2c 40%, #2c2a1b 75%, #3f2a1c 100%);
+  }
+  .brand-stripe {
+    background: linear-gradient(90deg, #1e6b3a 0 50%, #8cc63f 50% 62%, #c9692f 62% 88%, #684730 88%);
+  }
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #d6d3d1 transparent;
+  }
+}
+
+@media print {
+  @page {
+    margin: 14mm;
+  }
+  body {
+    background: #fff !important;
+  }
+}
