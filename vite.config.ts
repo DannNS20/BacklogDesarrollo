@@ -6,9 +6,9 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    port: 5180,
+    port: 5190,
     strictPort: true,
-    // La API (server/) corre en el puerto 4580 durante el desarrollo (API_PORT en .env)
-    proxy: { '/api': 'http://127.0.0.1:4580' },
+    // La API (server/) corre en el puerto 4590 durante el desarrollo (API_PORT en .env)
+    proxy: { '/api': 'http://127.0.0.1:4590' },
   },
 })

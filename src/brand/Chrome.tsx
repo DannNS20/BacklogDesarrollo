@@ -26,7 +26,7 @@ export function SiteFooter({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
     <footer className={`relative z-10 border-t ${dark ? 'border-white/15 text-white/70' : 'border-stone-200 bg-white text-stone-500'}`}>
       <div className="mx-auto flex max-w-7xl flex-col gap-1 px-5 py-5 text-xs sm:flex-row sm:items-center sm:justify-between sm:px-8">
         <span>© {new Date().getFullYear()} Universidad de Guadalajara · Centro Universitario de Tlaquepaque</span>
-        <span>Coordinación de Servicio Social</span>
+        <span>UniAccess · Control de acceso universitario</span>
       </div>
     </footer>
   );

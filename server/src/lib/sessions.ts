@@ -3,18 +3,19 @@ import type { Request, Response } from 'express';
 import { config } from '../config.ts';
 import { one, run } from '../db/index.ts';
 
-export type SubjectType = 'admin' | 'student';
+export type SubjectType = 'staff' | 'person';
 
 /** Cookies distintas: las sesiones de cada portal son completamente independientes */
 export const SESSION_COOKIES: Record<SubjectType, string> = {
-  admin: 'cut_admin_session',
-  student: 'cut_student_session',
+  staff: 'uniaccess_staff',
+  person: 'uniaccess_person',
 };
 
 const HOUR = 60 * 60 * 1000;
 const SESSION_TTL: Record<SubjectType, number> = {
-  admin: 10 * HOUR,
-  student: 30 * 24 * HOUR,
+  staff: 10 * HOUR,
+  // El celular es el medio de acceso diario: sesión larga para no pedir contraseña en la entrada
+  person: 30 * 24 * HOUR,
 };
 
 const hashToken = (token: string) => createHash('sha256').update(token).digest('hex');
@@ -69,7 +70,7 @@ export function endSession(req: Request, res: Response, type: SubjectType) {
   res.clearCookie(SESSION_COOKIES[type], { path: '/api' });
 }
 
-/** Cierra todas las sesiones (p. ej. al cambiar contraseña o desactivar la cuenta) */
+/** Cierra todas las sesiones (al cambiar contraseña o dar de baja) */
 export function revokeSessions(type: SubjectType, subjectId: string) {
   run('DELETE FROM sessions WHERE subject_type = ? AND subject_id = ?', type, subjectId);
 }

@@ -5,13 +5,13 @@ import path from 'node:path';
 import express from 'express';
 import { z } from 'zod';
 import { nowIso, run } from './db/index.ts';
-import { seedFirstAdmin } from './db/seed.ts';
+import { seedInitialData } from './db/seed.ts';
 import { errorHandler, requireJsonBody } from './lib/http.ts';
-import { requireAdmin, requireStudent } from './middleware/auth.ts';
-import { adminRouter } from './routes/admin/index.ts';
+import { requirePerson, requireStaff } from './middleware/auth.ts';
 import { authRouter } from './routes/auth.ts';
-import { studentRouter } from './routes/student.ts';
-import { scanMissingCheckouts } from './services/notifications.ts';
+import { personRouter } from './routes/person.ts';
+import { staffRouter } from './routes/staff/index.ts';
+import { closeStaleRecords } from './services/access.ts';
 
 z.config(z.locales.es());
 
@@ -24,15 +24,15 @@ app.use((_req, res, next) => {
     'X-Content-Type-Options': 'nosniff',
     'X-Frame-Options': 'DENY',
     'Referrer-Policy': 'same-origin',
-    'Permissions-Policy': 'camera=(self), geolocation=(self), publickey-credentials-get=(self), publickey-credentials-create=(self)',
+    'Permissions-Policy': 'geolocation=(self), publickey-credentials-get=(self), publickey-credentials-create=(self)',
   });
   next();
 });
 
-app.use('/api', express.json({ limit: '4mb' }), requireJsonBody);
+app.use('/api', express.json({ limit: '1mb' }), requireJsonBody);
 app.use('/api/auth', authRouter);
-app.use('/api/admin', requireAdmin, adminRouter);
-app.use('/api/student', requireStudent, studentRouter);
+app.use('/api/person', requirePerson, personRouter);
+app.use('/api/staff', requireStaff, staffRouter);
 app.use('/api', (_req, res) => {
   res.status(404).json({ error: 'Recurso no encontrado.' });
 });
@@ -50,19 +50,19 @@ app.use(errorHandler);
 
 function housekeeping() {
   try {
-    scanMissingCheckouts();
+    closeStaleRecords();
     run('DELETE FROM sessions WHERE expires_at < ?', nowIso());
   } catch (error) {
     console.error('Error en tareas programadas:', error);
   }
 }
 
-await seedFirstAdmin();
+await seedInitialData();
 housekeeping();
 setInterval(housekeeping, 10 * 60 * 1000);
 
 const server = app.listen(config.port, () => {
-  console.log(`✔  API de Servicio Social escuchando en http://localhost:${config.port}`);
+  console.log(`✔  API de UniAccess escuchando en http://localhost:${config.port}`);
   if (!config.production) console.log(`   Portales en ${config.appOrigin}`);
 });
 

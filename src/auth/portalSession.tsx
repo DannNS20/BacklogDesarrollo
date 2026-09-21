@@ -6,7 +6,7 @@ import { FullPageLoader } from '../ui/Display';
 type Status = 'loading' | 'authenticated' | 'anonymous';
 
 interface PortalConfig {
-  portal: 'admin' | 'student';
+  portal: 'person' | 'staff';
   sessionPath: string;
   loginPath: string;
   logoutPath: string;

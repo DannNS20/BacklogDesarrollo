@@ -1,12 +1,13 @@
 import {
   ArrowRight,
-  BellRing,
-  Camera,
-  ClipboardCheck,
-  Clock3,
+  BadgeCheck,
   Fingerprint,
-  GraduationCap,
+  LogIn,
+  MapPin,
+  Radio,
   ShieldCheck,
+  Timer,
+  UserRoundCheck,
   type LucideIcon,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -18,10 +19,10 @@ import GlareHover from '../components/reactbits/GlareHover/GlareHover';
 import RotatingText from '../components/reactbits/RotatingText/RotatingText';
 
 const FEATURES: Array<{ icon: LucideIcon; title: string; text: string }> = [
-  { icon: Camera, title: 'Evidencia en cada registro', text: 'Fotografía, ubicación y hora del servidor al marcar entrada y salida.' },
-  { icon: Fingerprint, title: 'Verificación biométrica', text: 'Huella o rostro del dispositivo del estudiante para confirmar su identidad.' },
-  { icon: Clock3, title: 'Horas en tiempo real', text: 'Avance, horas restantes y fecha estimada de término según el horario.' },
-  { icon: BellRing, title: 'Alertas para responsables', text: 'Retardos, salidas no registradas, solicitudes y servicios completados.' },
+  { icon: Timer, title: 'Acceso en segundos', text: 'Sin filas ni revisión manual de credencial en la entrada.' },
+  { icon: Fingerprint, title: 'Identidad verificada', text: 'La huella o el rostro del propio teléfono confirma quién registra.' },
+  { icon: MapPin, title: 'Registro en el campus', text: 'Cada acceso valida que la persona esté realmente en la entrada.' },
+  { icon: Radio, title: 'Vigilancia informada', text: 'Tablero en vivo de quién está dentro y alertas de cada incidencia.' },
 ];
 
 export default function Landing() {
@@ -35,20 +36,20 @@ export default function Landing() {
           <div className="text-white">
             <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold tracking-wide ring-1 ring-white/25 backdrop-blur">
               <span className="size-1.5 rounded-full bg-oliva-300" />
-              Coordinación de Servicio Social
+              Control de acceso universitario
             </span>
             <BlurText
-              text="Sistema de Control de Servicio Social"
+              text="UniAccess"
               delay={80}
-              animateBy="words"
-              animationFrom={{ filter: 'blur(10px)', opacity: 0, y: 24 }}
+              animateBy="letters"
+              animationFrom={{ filter: 'blur(12px)', opacity: 0, y: 24 }}
               animationTo={[{ filter: 'blur(0px)', opacity: 1, y: 0 }]}
-              className="mt-6 max-w-2xl font-display text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl lg:text-6xl"
+              className="mt-6 font-display text-6xl leading-none font-extrabold tracking-tight sm:text-7xl"
             />
-            <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 font-display text-lg font-semibold sm:text-2xl">
-              <span className="text-white/85">Una plataforma para</span>
+            <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 font-display text-lg font-semibold sm:text-2xl">
+              <span className="text-white/85">Entra al campus y</span>
               <RotatingText
-                texts={['registrar asistencias', 'consultar horas', 'validar evidencias', 'dar seguimiento']}
+                texts={['registra tu entrada', 'confirma tu identidad', 'evita las filas', 'deja constancia']}
                 mainClassName="overflow-hidden rounded-lg bg-white px-3 py-1 text-verde-700 shadow-lg shadow-black/10"
                 splitLevelClassName="overflow-hidden pb-0.5"
                 staggerFrom="last"
@@ -58,28 +59,28 @@ export default function Landing() {
               />
             </div>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-white/80 sm:text-lg">
-              Sustituye las listas impresas por un registro digital con evidencia, seguimiento por responsable y reportes listos para el
-              trámite de liberación.
+              Check-in y check-out digital para alumnos, docentes, personal e invitados del Centro Universitario de Tlaquepaque. Sin filas en
+              horas pico y con un historial consultable de cada acceso.
             </p>
           </div>
 
           <div className="grid gap-4">
             <PortalCard
-              to="/estudiante"
-              icon={GraduationCap}
-              eyebrow="Prestadores de servicio"
-              title="Portal del Estudiante"
-              description="Marca tu entrada y salida, consulta tus horas cumplidas, las que te faltan y tu horario asignado."
-              cta="Ingresar como estudiante"
+              to="/acceso"
+              icon={UserRoundCheck}
+              eyebrow="Alumnos, docentes y personal"
+              title="Portal de acceso"
+              description="Registra tu entrada y salida desde tu celular, con la biometría de tu propio dispositivo."
+              cta="Registrar mi acceso"
               accent="verde"
             />
             <PortalCard
-              to="/admin"
+              to="/control"
               icon={ShieldCheck}
-              eyebrow="Responsables y coordinación"
-              title="Portal Administrativo"
-              description="Registra prestadores, revisa evidencias, atiende solicitudes de contraseña y da seguimiento a las horas."
-              cta="Ingresar como responsable"
+              eyebrow="Vigilancia y administración"
+              title="Portal institucional"
+              description="Consulta quién está dentro, emite pases de invitado, atiende alertas y audita el historial."
+              cta="Entrar al portal"
               accent="terracota"
             />
           </div>
@@ -89,7 +90,7 @@ export default function Landing() {
       <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8">
         <div className="max-w-2xl">
           <p className="eyebrow text-terracota-600">Cómo funciona</p>
-          <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-stone-900">Control formal, sin papel y con evidencia</h2>
+          <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-stone-900">Un solo ciclo: entrada y salida</h2>
         </div>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {FEATURES.map(({ icon: Icon, title, text }, index) => (
@@ -103,8 +104,8 @@ export default function Landing() {
           ))}
         </div>
         <div className="mt-6 flex items-center gap-3 rounded-xl border border-cafe-100 bg-cafe-50 px-5 py-4 text-sm text-cafe-700">
-          <ClipboardCheck className="size-5 shrink-0" />
-          Las contraseñas de acceso las genera exclusivamente la Coordinación. Si olvidaste la tuya, solicítala desde el portal del estudiante.
+          <BadgeCheck className="size-5 shrink-0" />
+          ¿No tienes credencial institucional? Los visitantes se registran en la caseta de vigilancia con un pase temporal del día.
         </div>
       </section>
 
@@ -140,9 +141,7 @@ function PortalCard({ to, icon: Icon, eyebrow, title, description, cta, accent }
         className="shadow-2xl shadow-black/20 transition duration-300 group-hover:-translate-y-1"
       >
         <div className="flex w-full gap-5 p-6 text-left">
-          <span
-            className={`grid size-14 shrink-0 place-items-center rounded-xl ${verde ? 'bg-verde-600 text-white' : 'bg-terracota-500 text-white'}`}
-          >
+          <span className={`grid size-14 shrink-0 place-items-center rounded-xl text-white ${verde ? 'bg-verde-600' : 'bg-terracota-500'}`}>
             <Icon className="size-7" />
           </span>
           <div className="min-w-0">
@@ -150,6 +149,7 @@ function PortalCard({ to, icon: Icon, eyebrow, title, description, cta, accent }
             <h2 className="mt-1 font-display text-xl font-extrabold text-stone-900">{title}</h2>
             <p className="mt-1.5 text-sm leading-relaxed text-stone-500">{description}</p>
             <span className={`mt-4 inline-flex items-center gap-1.5 text-sm font-semibold ${verde ? 'text-verde-700' : 'text-terracota-600'}`}>
+              {verde && <LogIn className="size-4" />}
               {cta}
               <ArrowRight className="size-4 transition group-hover:translate-x-1" />
             </span>

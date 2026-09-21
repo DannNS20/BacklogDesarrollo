@@ -1,39 +1,34 @@
-import { Ban, Clock, Fingerprint, PenLine, TriangleAlert } from 'lucide-react';
-import type { AttendanceRecord } from '../../shared/contracts';
-import { dateKey } from '../lib/format';
+import { Fingerprint, LogIn, PenLine, TriangleAlert } from 'lucide-react';
+import type { AccessRecord } from '../../shared/contracts';
+import { INCIDENT_LABELS } from '../../shared/rules';
 import { Badge, PulseDot } from '../ui/Display';
 
-export function RecordBadges({ record }: { record: AttendanceRecord }) {
-  const isToday = dateKey(new Date(record.checkIn)) === dateKey(new Date());
+export function RecordBadges({ record }: { record: AccessRecord }) {
+  const inside = !record.checkOut && !record.incident;
   return (
     <>
-      {record.status === 'rejected' && (
-        <Badge tone="red" icon={Ban}>
-          Invalidado
+      {inside && (
+        <Badge tone="verde">
+          <PulseDot />
+          Dentro del campus
         </Badge>
       )}
-      {!record.checkOut &&
-        (isToday ? (
-          <Badge tone="verde">
-            <PulseDot />
-            En curso
-          </Badge>
-        ) : (
-          <Badge tone="amber" icon={TriangleAlert}>
-            Sin salida
-          </Badge>
-        ))}
-      {record.lateMinutes > 0 && (
-        <Badge tone="amber" icon={Clock}>
-          Retardo {record.lateMinutes} min
+      {record.incident && (
+        <Badge tone="amber" icon={TriangleAlert}>
+          {INCIDENT_LABELS[record.incident]}
         </Badge>
       )}
-      {(record.checkInEvidence.biometric || record.checkOutEvidence?.biometric) && (
+      {record.biometric && (
         <Badge tone="verde" icon={Fingerprint}>
           Biometría
         </Badge>
       )}
-      {record.source === 'manual' && <Badge icon={PenLine}>Captura manual</Badge>}
+      {record.source === 'manual' && <Badge icon={PenLine}>Registro en caseta</Badge>}
+      {!record.checkIn && record.checkOut && (
+        <Badge tone="neutral" icon={LogIn}>
+          Sin entrada
+        </Badge>
+      )}
     </>
   );
 }

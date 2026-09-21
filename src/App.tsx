@@ -4,9 +4,9 @@ import Landing from './portals/Landing';
 import { FullPageLoader } from './ui/Display';
 import { ToastProvider } from './ui/ToastProvider';
 
-// Cada portal se descarga por separado: el estudiante nunca recibe el código del panel administrativo
-const StudentPortal = lazy(() => import('./portals/student/StudentPortal'));
-const AdminPortal = lazy(() => import('./portals/admin/AdminPortal'));
+// Cada portal se descarga por separado: quien registra su acceso nunca recibe el código del portal institucional
+const PersonPortal = lazy(() => import('./portals/person/PersonPortal'));
+const StaffPortal = lazy(() => import('./portals/staff/StaffPortal'));
 
 export default function App() {
   return (
@@ -15,8 +15,8 @@ export default function App() {
         <Suspense fallback={<FullPageLoader />}>
           <Routes>
             <Route path="/" element={<Landing />} />
-            <Route path="/estudiante/*" element={<StudentPortal />} />
-            <Route path="/admin/*" element={<AdminPortal />} />
+            <Route path="/acceso/*" element={<PersonPortal />} />
+            <Route path="/control/*" element={<StaffPortal />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>

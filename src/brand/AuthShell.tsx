@@ -6,7 +6,7 @@ import { BrandBackdrop } from './BrandBackdrop';
 import { SiteFooter, SiteHeader } from './Chrome';
 
 interface AuthShellProps {
-  portal: 'student' | 'admin';
+  portal: 'person' | 'staff';
   badge: string;
   badgeIcon: LucideIcon;
   title: string;

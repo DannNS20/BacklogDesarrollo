@@ -1,61 +1,46 @@
-# Sistema de Control de Servicio Social · CUTlaquepaque
+# UniAccess · CUTlaquepaque
 
-Plataforma institucional del **Centro Universitario de Tlaquepaque (UdeG)** para reemplazar las listas impresas de asistencia de los prestadores de servicio social.
+Sistema de control de acceso al Centro Universitario de Tlaquepaque mediante **check-in / check-out**
+para alumnos, docentes, personal e invitados.
 
-Tiene **dos portales completamente separados**, cada uno con su propio acceso, su propia sesión y su propio código:
+Proyecto de la materia **Seminario de Integración: Desarrollo** · 7.º de Informática.
 
-| Portal | Ruta | Quién entra | Cómo entra |
-| --- | --- | --- | --- |
-| Portal del Estudiante | `/estudiante` | Prestadores registrados | Código o correo institucional + contraseña generada por la Coordinación |
-| Portal Administrativo | `/admin` | Coordinación y responsables | Correo institucional **previamente registrado** + contraseña |
-
-> Versión preliminar (fase 2). Pensada para presentarse y validarse con la Coordinación antes de su puesta en producción.
+El alcance, las historias de usuario y las decisiones de diseño están en [docs/ALCANCE.md](docs/ALCANCE.md).
 
 ---
 
-## Funcionalidades
+## Dos portales separados
 
-### Portal del Estudiante
-- **Registro de entrada y salida** con asistente:
-  1. Fotografía de evidencia desde la cámara, con los datos del registro impresos en la imagen.
-  2. Ubicación del dispositivo (si el estudiante la permite).
-  3. Verificación biométrica (huella o rostro) si vinculó su dispositivo.
-- La hora oficial es siempre **la del servidor**. Si la entrada es posterior a la tolerancia, el retardo se calcula solo.
-- **Inicio**:
-  - Tiempo en servicio en vivo y salida programada.
-  - Horas cumplidas y restantes.
-  - Fecha estimada de término según su horario.
-  - Horario semanal y actividad reciente.
-- **Historial**: filtros, fotografías de evidencia, observaciones de la Coordinación y descarga en CSV.
-- **Perfil y seguridad**: datos registrados, responsable asignado, vinculación o baja de biometría y solicitud de nueva contraseña.
-- **¿Olvidaste tu contraseña?**: la solicitud llega como notificación a la Coordinación. El estudiante no puede crear ni cambiar contraseñas.
+| Portal | Ruta | Quién entra | Cómo entra |
+| --- | --- | --- | --- |
+| Portal de acceso | `/acceso` | Alumnos, docentes y personal | Matrícula o correo institucional + contraseña, desde el celular |
+| Portal institucional | `/control` | Vigilancia y administración | Correo institucional **previamente registrado** + contraseña |
 
-### Portal Administrativo
-- **Panel**:
-  - Prestadores activos y quién está en servicio ahora.
-  - Horas del día y gráfica de los últimos 14 días.
-  - Mayor avance y actividad del día.
-  - Alertas de pendientes.
-- **Registro de prestadores** en tres pasos:
-  1. Código, nombre, correo institucional, carrera y área.
-  2. Horas requeridas, fecha de inicio, responsable y horario por día (con plantillas).
-  3. Confirmación.
+Cada portal tiene su propia cookie de sesión y su propio paquete de código: iniciar sesión en uno no da acceso al otro.
 
-  Al terminar, el sistema **genera una contraseña segura** y muestra un **correo precargado** para enviarla.
-- **Expediente del prestador**:
-  - Avance, horario, último acceso y biometría.
-  - Registros y **reporte imprimible con firmas**.
-  - Generación de contraseña, desactivación y exportación CSV.
-- **Asistencias**:
-  - Filtros por periodo, prestador y estado.
-  - **Revisión de evidencias** (validar o invalidar con observación).
-  - Correcciones y capturas manuales con motivo.
-  - Exportación CSV.
-- **Notificaciones**:
-  - Solicitudes de contraseña, con acción directa para generar y enviar la nueva.
-  - Servicios completados, avances del 50 % y 90 %, retardos y registros sin salida.
-- **Responsables** (solo administrador general): alta de correos institucionales con acceso, roles, generación de contraseñas y desactivación.
-- **Alcance por rol**: cada responsable ve únicamente a los prestadores que tiene asignados; el administrador general ve todo.
+---
+
+## Qué hace
+
+### Portal de acceso (celular)
+- **Entrada y salida** como acciones separadas, confirmadas con la **biometría del propio teléfono** (huella o rostro, vía WebAuthn).
+- **Geocerca opcional por acceso**: si la puerta tiene coordenadas, el registro solo procede estando cerca.
+- Rechaza el registro y **alerta a vigilancia** cuando la credencial venció, está dada de baja, el rol no puede usar ese acceso o la persona está fuera del campus.
+- Si marca salida sin tener entrada abierta, **se registra igual y queda como incidencia**; si ya registró la salida, avisa y no la duplica.
+- Historial personal con filtros y descarga en CSV.
+- Perfil con la credencial digital y la gestión de dispositivos biométricos.
+
+### Portal institucional
+- **Tablero en vivo**: quién está dentro del campus, con búsqueda y filtro por rol, actualizado cada 15 segundos.
+- **Pases de invitado**: se emiten con motivo y anfitrión, registran la entrada, permiten reingreso el mismo día y se cierran al salir. Al día siguiente se rechazan por vencidos.
+- **Registro manual de respaldo** para cuando el teléfono de la persona no puede registrar.
+- **Alertas** de accesos denegados e incidencias, con marca de revisado.
+- **Historial** con filtros por periodo, persona, acceso, rol y estado, y exportación a CSV.
+- **Administración**: alta y baja de personas (la baja revoca el acceso y conserva el historial), accesos del campus con roles permitidos y geocerca, y operadores del sistema.
+
+### Roles
+- Personas: `alumno`, `docente`, `personal`.
+- Operadores: `vigilancia` (operación diaria) y `admin` (todo, incluida la administración).
 
 ---
 
@@ -63,18 +48,16 @@ Tiene **dos portales completamente separados**, cada uno con su propio acceso, s
 
 | Capa | Tecnología |
 | --- | --- |
-| Portales | React 19 + TypeScript + Vite + Tailwind CSS v4 + React Router (cada portal se carga por separado) |
-| Animaciones | [React Bits](https://reactbits.dev): Threads, BlurText, RotatingText, GlareHover, AnimatedContent, SpotlightCard, CountUp, Counter, Stepper, ClickSpark; más Motion |
+| Portales | React 19 + TypeScript + Vite + Tailwind CSS v4 + React Router |
+| Animaciones | [React Bits](https://reactbits.dev): Threads, BlurText, RotatingText, GlareHover, AnimatedContent, SpotlightCard, CountUp, Counter, ClickSpark; más Motion |
 | API | Node.js + Express 5 + TypeScript (`tsx`) + Zod |
-| Base de datos | SQLite integrado en Node (`node:sqlite`), sin instalaciones adicionales. El esquema es SQL estándar y se puede migrar a PostgreSQL o SQL Server |
-| Biometría | WebAuthn / passkeys con `@simplewebauthn` (verificación en el servidor) |
+| Base de datos | SQLite integrado en Node (`node:sqlite`), sin instalar nada aparte. El esquema es SQL estándar y se puede migrar a PostgreSQL o SQL Server |
+| Biometría | WebAuthn / passkeys con `@simplewebauthn`, verificadas en el servidor |
 | Correo | Nodemailer (SMTP). Sin SMTP, los correos se guardan en `server/data/outbox` |
-
-Identidad visual: verde institucional, oliva y terracota del logotipo CUTLAQUE, con tipografía Montserrat e Inter.
 
 ---
 
-## Puesta en marcha (desarrollo)
+## Puesta en marcha
 
 Requisitos: **Node.js 22.13 o superior**.
 
@@ -83,13 +66,18 @@ npm install
 npm run dev
 ```
 
-- Portales: http://localhost:5180
-- API: http://localhost:4580 (configurable con `API_PORT`)
+- Portales: http://localhost:5190
+- API: http://localhost:4590 (configurable con `API_PORT`)
 
-La primera vez que arranca, el servidor crea el **administrador general** con los datos de `SEED_ADMIN_EMAIL` y `SEED_ADMIN_PASSWORD` del archivo `.env` (ver `.env.example`). La contraseña se guarda cifrada; si la base ya tiene administradores, esas variables se ignoran.
+La primera vez, el servidor crea el **administrador inicial** con `SEED_ADMIN_EMAIL` y `SEED_ADMIN_PASSWORD` del archivo `.env` (ver `.env.example`), además de tres accesos de ejemplo. Desde el portal institucional se dan de alta las personas y los demás operadores.
 
-### Escudo oficial
-Coloca el archivo del escudo de la UdeG en `public/brand/escudo-udg.png` y aparecerá automáticamente en los encabezados.
+### Variables útiles
+
+| Variable | Para qué sirve |
+| --- | --- |
+| `REQUIRE_BIOMETRIC` | `false` permite registrar acceso sin biometría (útil para demostraciones en computadora) |
+| `ENFORCE_GEOFENCE` | `false` ignora la geocerca de los accesos |
+| `APP_ORIGIN` | URL pública; la biometría queda ligada a este dominio |
 
 ---
 
@@ -100,52 +88,42 @@ npm run build
 npm start
 ```
 
-`npm start` sirve la API y los portales compilados desde el mismo servidor (puerto `PORT`).
+El mismo servidor entrega la API y los portales compilados.
 
-Requisitos importantes:
-- **HTTPS obligatorio**: la cámara, la geolocalización y la biometría solo funcionan en conexiones seguras (o en `localhost`).
-- Configura `APP_ORIGIN` con la URL pública exacta (por ejemplo, `https://serviciosocial.cutlaquepaque.udg.mx`). La biometría queda ligada a ese dominio.
-- Configura SMTP para enviar correos reales.
-- Respalda periódicamente `server/data/`, que contiene la base de datos y las fotografías de evidencia.
+- **HTTPS es obligatorio**: la biometría y la ubicación solo funcionan en conexiones seguras (o en `localhost`).
+- Configura `APP_ORIGIN` con la URL pública exacta.
+- Respalda `server/data/`, que contiene la base de datos.
 
 ---
 
-## Seguridad implementada
+## Seguridad
 
-- Contraseñas cifradas con **scrypt** y sal aleatoria. Solo los administradores generan contraseñas, que se muestran una sola vez.
-- **Sesiones independientes por portal**: cookies distintas, `HttpOnly` y `SameSite=Strict`, almacenadas con hash en la base de datos. La cookie de un portal no abre el otro.
-- Al generar una contraseña nueva o desactivar una cuenta, **se cierran todas sus sesiones**.
-- Límite de intentos de inicio de sesión y de solicitudes de recuperación.
-- Respuestas idénticas en la recuperación, para no revelar qué códigos existen.
-- Validación de todos los datos en el servidor con Zod; las escrituras solo aceptan JSON.
-- Fotografías validadas por firma de archivo y servidas solo a su dueño o a su responsable.
-- Biometría con desafío de un solo uso verificado en el servidor. Los datos biométricos nunca salen del dispositivo.
-- Bitácora (`audit_log`) de altas, contraseñas, correcciones, validaciones y envíos de correo.
+- Contraseñas con **scrypt** y sal aleatoria; solo la administración las genera y se muestran una sola vez.
+- **Sesiones independientes por portal**, con cookies `HttpOnly` y `SameSite=Strict` guardadas con hash.
+- Las bajas y los cambios de contraseña **cierran todas las sesiones** de esa cuenta.
+- Límite de intentos de inicio de sesión.
+- Validación de toda la entrada con Zod; las escrituras solo aceptan JSON.
+- Biometría con desafío de un solo uso verificado en el servidor; los datos biométricos nunca salen del dispositivo.
+- Bitácora (`audit_log`) de altas, bajas, contraseñas, registros manuales y pases de invitado.
 
 ---
 
 ## Estructura
 
 ```
-shared/                 Contrato de datos y reglas compartidas (servidor y portales)
+docs/ALCANCE.md         Historias de usuario, MoSCoW y reglas de negocio
+shared/                 Contrato de datos y reglas compartidas
 server/src/
-  config.ts             Variables de entorno
-  db/                   Esquema SQL, conexión y administrador inicial
-  lib/                  Contraseñas, sesiones, evidencias, correo, límites
-  middleware/auth.ts    Protección por portal y rol
-  routes/               auth, student y admin/* (prestadores, asistencias, responsables, panel)
-  services/             Lógica de asistencia, avance, notificaciones y biometría
-src/
-  portals/Landing.tsx   Portada institucional
-  portals/student/      Portal del Estudiante (acceso, inicio, historial, perfil)
-  portals/admin/        Portal Administrativo (panel, prestadores, asistencias, notificaciones, responsables)
-  brand/                Logotipo, fondo animado y pantallas de acceso
-  ui/                   Componentes de interfaz
-  components/reactbits/ Componentes de React Bits (código editable)
+  db/                   Esquema SQL, conexión y datos iniciales
+  lib/                  Contraseñas, sesiones, correo, límites, fechas
+  routes/               auth, person y staff/* (operación, personas, configuración)
+  services/             Lógica de acceso, invitados, alertas y biometría
+src/portals/
+  Landing.tsx           Portada
+  person/               Portal de acceso (celular)
+  staff/                Portal institucional (vigilancia y administración)
 ```
 
-## Próximos pasos sugeridos
-- Integración con el directorio institucional o el SSO de la UdeG.
-- Periodos escolares, cartas de asignación y liberación en PDF.
-- Validación de ubicación contra el perímetro del centro universitario o del área asignada.
-- Reportes por área y por periodo para la Coordinación.
+## Fuera de este ciclo
+
+Según la priorización MoSCoW del documento: los **reportes de afluencia por hora, día y tipo de usuario** (historia 10) quedan en el backlog y no se implementan en estas 10 semanas.

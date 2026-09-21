@@ -48,7 +48,7 @@ export function UdgSeal({ className = 'h-10' }: { className?: string }) {
 }
 
 /** Marca compacta para barras de navegación */
-export function ProductMark({ tone = 'color', label = 'Servicio Social' }: { tone?: 'color' | 'white'; label?: string }) {
+export function ProductMark({ tone = 'color', label = 'UniAccess' }: { tone?: 'color' | 'white'; label?: string }) {
   const white = tone === 'white';
   return (
     <span className="flex items-center gap-3">

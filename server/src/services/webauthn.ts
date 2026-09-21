@@ -6,13 +6,13 @@ import {
   type AuthenticationResponseJSON,
   type RegistrationResponseJSON,
 } from '@simplewebauthn/server';
-
-type AuthenticatorTransportFuture = NonNullable<Parameters<typeof verifyAuthenticationResponse>[0]['credential']['transports']>[number];
 import type { BiometricCredential } from '../../../shared/contracts.ts';
 import { config } from '../config.ts';
 import { many, nowIso, one, run } from '../db/index.ts';
 import { badRequest } from '../lib/http.ts';
-import type { StudentRow } from './students.ts';
+import type { PersonRow } from './people.ts';
+
+type AuthenticatorTransportFuture = NonNullable<Parameters<typeof verifyAuthenticationResponse>[0]['credential']['transports']>[number];
 
 const CHALLENGE_TTL = 5 * 60 * 1000;
 const challenges = new Map<string, { challenge: string; expiresAt: number }>();
@@ -26,7 +26,7 @@ function consumeChallenge(key: string): string {
 
 interface CredentialRow {
   id: string;
-  student_id: string;
+  person_id: string;
   public_key: Uint8Array;
   counter: number;
   transports: string;
@@ -37,8 +37,8 @@ interface CredentialRow {
 
 const transportsOf = (row: Pick<CredentialRow, 'transports'>) => JSON.parse(row.transports) as AuthenticatorTransportFuture[];
 
-export function listCredentials(studentId: string): BiometricCredential[] {
-  return many<CredentialRow>('SELECT * FROM webauthn_credentials WHERE student_id = ? ORDER BY created_at', studentId).map(row => ({
+export function listCredentials(personId: string): BiometricCredential[] {
+  return many<CredentialRow>('SELECT * FROM webauthn_credentials WHERE person_id = ? ORDER BY created_at', personId).map(row => ({
     id: row.id,
     label: row.label,
     createdAt: row.created_at,
@@ -46,39 +46,39 @@ export function listCredentials(studentId: string): BiometricCredential[] {
   }));
 }
 
-export async function registrationOptions(student: StudentRow) {
-  const existing = many<Pick<CredentialRow, 'id' | 'transports'>>('SELECT id, transports FROM webauthn_credentials WHERE student_id = ?', student.id);
+export async function registrationOptions(person: PersonRow) {
+  const existing = many<Pick<CredentialRow, 'id' | 'transports'>>('SELECT id, transports FROM webauthn_credentials WHERE person_id = ?', person.id);
   const options = await generateRegistrationOptions({
-    rpName: 'Servicio Social CUTlaquepaque',
+    rpName: 'UniAccess CUTlaquepaque',
     rpID: config.rpID,
-    userName: student.email,
-    userDisplayName: student.full_name,
-    userID: new TextEncoder().encode(student.id),
+    userName: person.email,
+    userDisplayName: person.full_name,
+    userID: new TextEncoder().encode(person.id),
     attestationType: 'none',
     excludeCredentials: existing.map(row => ({ id: row.id, transports: transportsOf(row) })),
     authenticatorSelection: { residentKey: 'preferred', userVerification: 'required', authenticatorAttachment: 'platform' },
   });
-  challenges.set(`register:${student.id}`, { challenge: options.challenge, expiresAt: Date.now() + CHALLENGE_TTL });
+  challenges.set(`register:${person.id}`, { challenge: options.challenge, expiresAt: Date.now() + CHALLENGE_TTL });
   return options;
 }
 
-export async function completeRegistration(studentId: string, response: RegistrationResponseJSON, label: string) {
+export async function completeRegistration(personId: string, response: RegistrationResponseJSON, label: string) {
   const verification = await verifyRegistrationResponse({
     response,
-    expectedChallenge: consumeChallenge(`register:${studentId}`),
+    expectedChallenge: consumeChallenge(`register:${personId}`),
     expectedOrigin: config.allowedOrigins,
     expectedRPID: config.rpID,
     requireUserVerification: true,
   }).catch(() => ({ verified: false, registrationInfo: undefined }));
 
   if (!verification.verified || !verification.registrationInfo) {
-    throw badRequest('No se pudo verificar el dispositivo biométrico.');
+    throw badRequest('No se pudo verificar la biometría de este dispositivo.');
   }
   const { credential } = verification.registrationInfo;
   run(
-    'INSERT INTO webauthn_credentials (id, student_id, public_key, counter, transports, label) VALUES (?, ?, ?, ?, ?, ?)',
+    'INSERT INTO webauthn_credentials (id, person_id, public_key, counter, transports, label) VALUES (?, ?, ?, ?, ?, ?)',
     credential.id,
-    studentId,
+    personId,
     credential.publicKey,
     credential.counter,
     JSON.stringify(credential.transports ?? []),
@@ -86,23 +86,23 @@ export async function completeRegistration(studentId: string, response: Registra
   );
 }
 
-export async function authenticationOptions(studentId: string) {
-  const credentials = many<Pick<CredentialRow, 'id' | 'transports'>>('SELECT id, transports FROM webauthn_credentials WHERE student_id = ?', studentId);
-  if (!credentials.length) throw badRequest('No tienes biometría registrada.');
+export async function authenticationOptions(personId: string) {
+  const credentials = many<Pick<CredentialRow, 'id' | 'transports'>>('SELECT id, transports FROM webauthn_credentials WHERE person_id = ?', personId);
+  if (!credentials.length) throw badRequest('No tienes biometría vinculada en este momento.');
   const options = await generateAuthenticationOptions({
     rpID: config.rpID,
     allowCredentials: credentials.map(row => ({ id: row.id, transports: transportsOf(row) })),
     userVerification: 'required',
   });
-  challenges.set(`auth:${studentId}`, { challenge: options.challenge, expiresAt: Date.now() + CHALLENGE_TTL });
+  challenges.set(`auth:${personId}`, { challenge: options.challenge, expiresAt: Date.now() + CHALLENGE_TTL });
   return options;
 }
 
-/** Verifica la huella/rostro del estudiante; lanza error si no es válida */
-export async function verifyBiometric(studentId: string, response: AuthenticationResponseJSON) {
-  const expectedChallenge = consumeChallenge(`auth:${studentId}`);
-  const row = one<CredentialRow>('SELECT * FROM webauthn_credentials WHERE id = ? AND student_id = ?', response.id, studentId);
-  if (!row) throw badRequest('Este dispositivo biométrico no está vinculado a tu cuenta.');
+/** Confirma la identidad con la huella o el rostro del dispositivo */
+export async function verifyBiometric(personId: string, response: AuthenticationResponseJSON) {
+  const expectedChallenge = consumeChallenge(`auth:${personId}`);
+  const row = one<CredentialRow>('SELECT * FROM webauthn_credentials WHERE id = ? AND person_id = ?', response.id, personId);
+  if (!row) throw badRequest('Este dispositivo no está vinculado a tu cuenta.');
 
   const verification = await verifyAuthenticationResponse({
     response,

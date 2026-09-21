@@ -2,11 +2,11 @@ import { randomUUID } from 'node:crypto';
 import { run } from '../db/index.ts';
 
 export interface Actor {
-  type: 'admin' | 'student';
+  type: 'staff' | 'person';
   id: string;
 }
 
-/** Bitácora de acciones sensibles (altas, contraseñas, correcciones) */
+/** Bitácora de acciones sensibles (altas, bajas, contraseñas, registros manuales) */
 export function audit(actor: Actor, action: string, entity: string, entityId: string | null, details: Record<string, unknown> = {}) {
   run(
     'INSERT INTO audit_log (id, actor_type, actor_id, action, entity, entity_id, details) VALUES (?, ?, ?, ?, ?, ?, ?)',
