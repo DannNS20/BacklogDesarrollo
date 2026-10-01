@@ -291,9 +291,11 @@ El mismo servidor entrega la API y los portales compilados.
 
 | Integrante | Rol en Scrum | GitHub |
 | --- | --- | --- |
-| Nombre | Product Owner | [@usuario](https://github.com/usuario) |
-| Nombre | Scrum Master | [@usuario](https://github.com/usuario) |
-| Nombre | Desarrollo | [@usuario](https://github.com/usuario) |
+| Nombre | Product Owner | https://github.com/kevinperez357 |
+| Nombre | Scrum Master | https://github.com/Blancarte-7655 |
+| Nombre | Desarrollo | https://github.com/BetoGDL51 |
+| Nombre | Desarrollo | https://github.com/DannNS20  |
+| Nombre | Desarrollo | https://github.com/Markozrm |
 
 ---
 
