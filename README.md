@@ -291,11 +291,11 @@ El mismo servidor entrega la API y los portales compilados.
 
 | Integrante | Rol en Scrum | GitHub |
 | --- | --- | --- |
-| Nombre | Product Owner | https://github.com/kevinperez357 |
-| Nombre | Scrum Master | https://github.com/Blancarte-7655 |
-| Nombre | Desarrollo | https://github.com/BetoGDL51 |
-| Nombre | Desarrollo | https://github.com/DannNS20  |
-| Nombre | Desarrollo | https://github.com/Markozrm |
+| Kevin Leonardo Perez Beltran | Product Owner | https://github.com/kevinperez357 |
+| Manuel Osvaldo Montes Blancarte | Scrum Master | https://github.com/Blancarte-7655 |
+| Alberto Lopez Sanchez | Desarrollo | https://github.com/BetoGDL51 |
+| Fernando Daniel Serrano Islas | Desarrollo | https://github.com/DannNS20  |
+| Marcos Karim Ramirez Medrano | Desarrollo | https://github.com/Markozrm |
 
 ---
 
